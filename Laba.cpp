@@ -1,290 +1,366 @@
 ﻿#include <stdio.h>
-#include <malloc.h>
-#include <math.h>
-#include <time.h>
 #include <stdlib.h>
+#include <time.h>
+#include <locale.h>
 
-double bubb = 0, cho = 0, ins = 0;
+int sortinfo[6][2];
 
 void hello() {
-	printf("Select an action:\n");
-	printf("0. Exit\n");
-	printf("1. Filling in the array\n");
-	printf("2. Linear element search\n");
-	printf("3. Binary element search\n");
-	printf("4. Bubble Sort\n");
-	printf("5. Choise Sort\n");
-	printf("6. Insert Sort\n");
-	printf("7. Time comparison\n");
-	printf("Your choice: ");
+	printf("0. Выход\n");
+	printf("1. Создание массива\n");
+	printf("2. Линейный поиск\n");
+	printf("3. Бинарный поиск\n");
+	printf("4. Пузырьковая сортировка\n");
+	printf("5. Сортировка выбором\n");
+	printf("6. Сортировка вставками\n");
+	printf("7. Сортировка подсчётом\n");
+	printf("8. Быстрая сортировка\n");
+	printf("9. Сортировка слиянием\n");
+	printf("10. Сравнение сортировок\n");
+	printf("Ваш выбор: ");
+
 }
 
-void arr(int* m, int n) {
-	int a, b, buff;
-	if (n <= 10 && n > 0) {
-		for (int i = 0; i < n; i++) {
-			printf("Input %d number: ", i + 1);
-			scanf_s("%d", &m[i]);
-		}
-		printf("Your array: |");
-		for (int i = 0; i < n; i++) {
-			printf(" %d |", m[i]);
-		}
-		printf("\n");
+void output(int* m, int n) {
+	for (int i = 0; i < n; i++) {
+		printf("| %d ", m[i]);
 	}
-	else {
-		printf("Enter the first face of the range: ");
+	printf("|\n");
+}
+
+int* arr(int* m, int* n) {
+	int a, b, buff;
+	if (m != NULL) {
+		free(m);
+	}
+	printf("Введите размер массива: ");
+	scanf_s("%d", n);
+	m = (int*)malloc((*n) * sizeof(int));
+	if ((*n) > 10) {
+		printf("Введите левую границу значений элементов массива: ");
 		scanf_s("%d", &a);
-		printf("Enter the second face of the range: ");
+		printf("Введите правую границу значений элементов массива: ");
 		scanf_s("%d", &b);
 		if (a > b) {
 			buff = a;
 			a = b;
 			b = buff;
 		}
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < (*n); i++) {
 			m[i] = a + rand() % (b - a + 1);
 		}
-		printf("Your array: |");
-		for (int i = 0; i < n; i++) {
-			printf(" %d |", m[i]);
-		}
-		printf("\n");
 	}
+	else {
+		printf("Введите элементы массива: ");
+		for (int i = 0; i < (*n); i++) {
+			scanf_s("%d", &m[i]);
+		}
+	}
+	return m;
 }
 
-void arr2(int* m, int* mass, int n) {
+int* arr2(int* m, int n) {
+	int* mass = (int*)malloc(sizeof(int) * n);
 	for (int i = 0; i < n; i++) {
 		mass[i] = m[i];
 	}
+	return mass;
+}
+
+int* sortarr(int* m, int n) {
+	int buff;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n - 1; j++) {
+			if (m[j] > m[j + 1]) {
+				buff = m[j];
+				m[j] = m[j + 1];
+				m[j + 1] = buff;
+			}
+		}
+	}
+	return m;
 }
 
 void linear(int* m, int n) {
-	int num = 0, s = 0, f = 0;
-	printf("Enter the item you want to find: ");
-	scanf_s("%d", &num);
-	for (int i = 0; i < n; i++) {
-		s++;
-		if (num == m[i]) {
-			f = 1;
-			printf("Number %d in position %d\n", num, i);
-			break;
-		}
-	}
-	if (f == 0) {
-		printf("The element is not in the array\n");
-	}
-	printf("Number of operations: %d\n", s);
-}
-
-void binary(int* m, int*mass, int n) {
-	int first = 0, last = n - 1, mid = n / 2, el = 0, flag = 0, oper = 0;
-	arr2(m, mass, n);
-	printf("Enter the item you want to find: ");
+	int el, flag = 0, com = 0;
+	printf("Введите элемент, который вы хотите найти: ");
 	scanf_s("%d", &el);
-	while (first <= last) {
-		if (mass[mid] == el) {
+	for (int i = 0; i < n; i++) {
+		com++;
+		if (el == m[i]) {
 			flag = 1;
-			printf("Number %d in position %d\n", el, mid);
-			printf("Operations: %d", oper);
+			printf("Элемент %d стоит на позиции %d\n", el, i);
 			break;
 		}
-		if (el < mass[mid]) {
-			last = mid - 1;
-			oper++;
-		}
-		else {
-			first = mid + 1;
-			oper++;
-		}
-		mid = ((last + first) / 2);
-		oper++;
 	}
 	if (flag == 0) {
-		printf("There is no such number\n");
-		printf("Operations: %d\n", oper);
+		printf("Такого элемента нет в массиве\n");
 	}
+	printf("Количество проверок: %d\n", com);
 }
 
-void bubble(int* m, int* mass, int n) {
-	clock_t start, end;
-	int buff, oper = 0, srav = 0;
-	arr2(m, mass, n);
-	start = clock();
+void binear(int* mass, int n) {
+	int first = 0, last = n - 1, mid, el, com = 0, flag = 0;
+	printf("Введите элемент, который хотите найти: ");
+	scanf_s("%d", &el);
+	while (first <= last) {
+		mid = (first + last) / 2;
+		com++;
+		if (mass[mid] == el) {
+			flag = 1;
+			printf("Элемент %d стоит на позиции %d\n", el, mid);
+			break;
+		}
+		com++;
+		if (el > mass[mid]) {
+			first = mid + 1;
+		}
+		else {
+			last = mid - 1;
+		}
+	}
+	if (flag == 0) {
+		printf("Такого элемента нет в массиве\n");
+	}
+	printf("Количество сравнений: %d\n", com);
+}
+
+void bubble(int* m, int n) {
+	int buff, oper = 0;
+	int* arr = arr2(m, n);
+	clock_t start = clock();
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n - 1; j++) {
-			if (mass[j] > mass[j + 1]) {
-				srav++;
-				buff = mass[j];
-				mass[j] = mass[j + 1];
-				mass[j + 1] = buff;
+			oper++;
+			if (arr[j] > arr[j + 1]) {
+				buff = arr[j];
+				arr[j] = arr[j + 1];
+				arr[j + 1] = buff;
 				oper++;
 			}
 		}
 	}
-	end = clock();
-	bubb = end - start;
-	for (int i = 0; i < n; i++) {
-		printf("| %d ", mass[i]);
-	}
-	printf("|\n");
-	printf("Operation: %d\n", oper);
-	printf("Comparisons: %d\n", srav);
-	printf("Time: %lf ms\n", end - start);
+	clock_t end = clock();
+	output(arr, n);
+	printf("Количество операций: %d\n", oper);\
+	printf("Time: %.6f\n", (float)(end - start) / CLOCKS_PER_SEC);
+	sortinfo[0][0] = oper;
+	sortinfo[0][1] = (float)(end - start) / CLOCKS_PER_SEC;
+	free(arr);
 }
 
-void choise(int* m, int* mass, int n) {
-	int imin, srav = 0, oper = 0, buff;
-	clock_t start, end;
-	arr2(m, mass, n);
-	start = clock();
+void choise(int* m, int n) {
+	int imin, buff, oper = 0;
+	int* arr = arr2(m, n);
+	clock_t start = clock();
 	for (int i = 0; i < n; i++) {
 		imin = i;
 		for (int j = i; j < n; j++) {
-			if (mass[j] < mass[imin]) {
+			oper++;
+			if (arr[imin] > arr[j]) {
 				imin = j;
-				srav++;
 			}
 		}
-		buff = mass[imin];
-		mass[imin] = mass[i];
-		mass[i] = buff;
+		buff = arr[imin];
+		arr[imin] = arr[i];
+		arr[i] = buff;
 		oper++;
 	}
-	end = clock();
-	cho = end - start;
-	for (int i = 0; i < n; i++) {
-		printf("| %d ", mass[i]);
-	}
-	printf("|\n");
-	printf("Operation: %d\n", oper);
-	printf("Comparisons: %d\n", srav);
-	printf("Time = %lf ms\n", end - start);
+	clock_t end = clock();
+	output(arr, n);
+	printf("Time: %.6f\n", (float)(end - start) / CLOCKS_PER_SEC);
+	printf("Количество операций: %d\n", oper);
+	sortinfo[1][0] = oper;
+	sortinfo[1][1] = (float)(end - start) / CLOCKS_PER_SEC;
+	free(arr);
 }
 
-void inserts(int* m, int* mass, int n) {
-	clock_t start, end;
-	int pos, copy, oper = 0, srav = 0;
-	arr2(m, mass, n);
-	start = clock();
+void insert(int* m, int n) {
+	int copy, pos, oper = 0;
+	int* arr = arr2(m, n);
+	clock_t start = clock();
 	for (int i = 1; i < n; i++) {
 		pos = i;
 		for (int j = 0; j < i; j++) {
-			if (mass[i] < mass[j]) {
+			oper++;
+			if (arr[i] <= arr[j]) {
 				pos = j;
-				srav++;
 				break;
 			}
 		}
-		copy = mass[i];
-		for (int k = i - 1; k >= pos; k--) {
-			mass[k + 1] = mass[k];
+		copy = arr[i];
+		for (int j = i - 1; j >= pos; j--) {
+			arr[j + 1] = arr[j];
 			oper++;
 		}
-		mass[pos] = copy;
+		arr[pos] = copy;
 	}
-	end = clock();
-	ins = end - start;
-	for (int i = 0; i < n; i++) {
-		printf("| %d ", mass[i]);
-	}
-	printf("|\n");
-	printf("Operation: %d\n", oper);
-	printf("Comparisons: %d\n", srav);
-	printf("Time: %lf ms\n", end - start);
+	clock_t end = clock();
+	output(arr, n);
+	printf("Time: %.6f\n", (float)(end - start) / CLOCKS_PER_SEC);
+	printf("Количество опреаций: %d\n", oper);
+	sortinfo[2][0] = oper;
+	sortinfo[2][1] = (float)(end - start) / CLOCKS_PER_SEC;
+	free(arr);
 }
 
-void time(double bubb, double cho, double ins) {
-	double m[3] = { bubb, cho, ins };
-	double min = m[0];
-	int n;
-	for (int i = 0; i < 3; i++) {
-		if (min > m[i]) {
-			min = m[i];
-			n = i;
+void count(int* m, int n) {
+	int max = m[0], oper = 0;
+	for (int i = 0; i < n; i++) {
+		if (max <= m[i]) {
+			max = m[i];
 		}
 	}
-	printf("MIN Time have a ");
-	switch (n) {
-		case 0: printf("bubble sort: %lf", m[n]); break;
-		case 1: printf("choise sort: %lf", m[n]); break;
-		case 2: printf("insert sort: %lf", m[n]); break;
-		default: break;
+
+	int* count = arr2(m, max + 1);
+	int* arr = arr2(m, n);
+	clock_t start = clock();
+	for (int i = 0; i < max + 1; i++) {
+		count[i] = 0;
 	}
+	for (int i = 0; i < n; i++) {
+		count[m[i]]++;
+	}
+	int k = 0;
+	for (int i = 0; i <= max; i++) {
+		for (int j = 0; j < count[i]; j++) {
+			oper++;
+			arr[k++] = i;
+		}
+	}
+	clock_t end = clock();
+	output(arr, n);
+	printf("Time: %.6f\n", (float)(end - start) / CLOCKS_PER_SEC);
+	printf("Количество опреаций: %d\n", oper);
+	sortinfo[3][0] = oper;
+	sortinfo[3][1] = (float)(end - start) / CLOCKS_PER_SEC;
+	free(count);
+	free(arr);
+}
+
+void merge(int* m, int* arr,  int first, int mid, int last) {
+	int i = first, j = mid + 1, k = first;
+	while (i <= mid && j <= last) {
+		if (m[i] <= m[j]) {
+			arr[k] = m[i];
+			i++;
+			k++;
+		}
+		else {
+			arr[k] = m[j];
+			k++;
+			j++;
+		}
+	}
+	if (i > mid) {
+		while (j <= last) {
+			arr[k] = m[j];
+			k++;
+			j++;
+		}
+	}
+	if (j > last) {
+		while (i <= mid) {
+			arr[k] = m[i];
+			k++;
+			i++;
+		}
+	}
+}
+
+void mergesort(int* m, int* arr, int first, int last) {
+	if (last == first) return;
+	int mid = (first + last) / 2;
+	mergesort(m, arr, first, mid);
+	mergesort(m, arr, mid + 1, last);
+	merge(m, arr, first, mid, last);			 
+	output(arr, last + 1);
 }
 
 int main() {
 	srand(time(0));
-	int* m = nullptr, n, flag = 0, code, turn, * mass = nullptr, f = 0;
+	setlocale(LC_ALL, "rus");
+	int* m = nullptr, n, code, turn, flag = 0, f = 0, * sortm = nullptr, *arrm = nullptr;
 	do {
 		hello();
 		turn = scanf_s("%d", &code);
 		switch (code) {
 		case 0: break;
 		case 1: flag = 1;
-			printf("Enter the size of the array: ");
-			scanf_s("%d", &n);
-			m = (int*)malloc(n * sizeof(int));
-			arr(m, n);
-			mass = (int*)malloc(n * sizeof(int));
+			m = arr(m, &n);
+			sortm = arr2(m, n);
+			output(m, n);
 			break;
 
 		case 2: if (flag == 0) {
-			printf("First fill in the array\n");
+			printf("Сначала заполните массив\n");
 			break;
 		}
 			  linear(m, n); break;
 
-		case 3: if (flag == 0) {
-			printf("First fill in the array\n");
+		case 3:
+			if (flag == 0) {
+				printf("Сначала заполните массив\n");
+				break;
+			}
+			if (f == 0) {
+				printf("Сначала отсортируйте массив\n");
+				break;
+			}
+			sortarr(sortm, n);
+			binear(sortm, n);
+			free(sortm);
 			break;
-		}
-			  if (f == 0) {
-				  printf("It is necessary to arrange the array\n");
-				  break;
-			  }
-			  binary(m, mass, n); break;
 
 		case 4: if (flag == 0) {
-			printf("First fill in the array\n");
+			printf("Сначала заполните массив\n");
 			break;
 		}
-			  f++;
-			  bubble(m, mass, n); break;
+			  bubble(m, n); f++; break;
 
 		case 5: if (flag == 0) {
-			printf("First fill in the array\n");
+			printf("Сначала заполните массив\n");
 			break;
 		}
-			  f++;
-			  choise(m, mass, n); break;
+			  choise(m, n); f++; break;
 
 		case 6: if (flag == 0) {
-			printf("First fill in the array\n");
+			printf("Сначала заполните массив\n");
 			break;
 		}
-			  f++;
-			  inserts(m, mass, n); break;
+			  insert(m, n); f++; break;
 
 		case 7: if (flag == 0) {
-			printf("First fill in the array\n");
+			printf("Сначала заполните массив\n");
 			break;
 		}
-			  if (f < 3) {
-				  printf("It is necessary to perform all the sorting\n");
-				  break;
-			  }
-			  time(bubb, cho, ins); break;
+			  count(m, n); break;
+
+		case 8: if (flag == 0) {
+			printf("Сначала заполните массив\n");
+			break;
+		}
+			 break;
+
+		case 9: if (flag == 0) {
+			printf("Сначала заполните массив\n");
+			break;
+		}
+			  arrm = arr2(m, n);
+			  mergesort(m, arrm, 0, n - 1);
+			  free(arrm);
+			  break;
 
 		default: if (turn == 0) {
-			getchar();
-			printf("Error");
-			break;
+			printf("Ошибка! Можно вводить только числа\n");
+			while (getchar() != '\n');
 		}
+			   break;
 		}
 	} while (code != 0);
 
-	free(m);
-	free(mass);
+	if (m != NULL) {
+		free(m);
+	}
 	return 0;
 }
